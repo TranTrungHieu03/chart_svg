@@ -4,7 +4,7 @@ type Data = {
     x: number;
     y: number;
 }
-type LineChartProps = {
+type MultiLineChartProps = {
     data?: Data[][];
     color?: string[];
     dashedColor?: string;
@@ -13,10 +13,11 @@ type LineChartProps = {
     svgWidth?: number;
     dashedArray?: number[];
     labelArray?: string[];
-
+    unitHorizontal: string;
+    unitVertical: string;
 };
 
-const LineChart: React.FC<LineChartProps> = ({
+const MultiLineChart: React.FC<MultiLineChartProps> = ({
                                                  data = [],
                                                  color = ['#23aa3a', '#ff4500'],
                                                  svgHeight = 500,
@@ -24,7 +25,9 @@ const LineChart: React.FC<LineChartProps> = ({
                                                  normalDashColor = "#6E6E6EFF",
                                                  svgWidth = 600,
                                                  labelArray = ['item 1', 'item 2'],
-                                                 dashedArray = [5, 5]
+                                                 dashedArray = [5, 5],
+                                                 unitHorizontal = '',
+                                                 unitVertical = ''
                                              }) => {
 
     const padding = 50;
@@ -67,6 +70,89 @@ const LineChart: React.FC<LineChartProps> = ({
         // pathD += 'z'
         return pathD;
     }
+    // window.addEventListener('resize', () => {
+    //     const newWidth = window.innerWidth;
+    //     if (newWidth !== screen) {
+    //         console.log("Window width changed:", newWidth);
+    //         screen = newWidth;
+    //     }
+    // });
+
+    // const ref = useRef<HTMLDivElement>(null);
+    // const [width, setWidth] = useState(0);
+    //
+    // useEffect(() => {
+    //     const observer = new ResizeObserver((entries) => {
+    //         for (let entry of entries) {
+    //             setWidth(entry.contentRect.width);
+    //         }
+    //     });
+    //     if (ref.current) {
+    //         observer.observe(ref.current);
+    //     }
+    //
+    //     return () => observer.disconnect();
+    // }, []);
+
+    // const [width1, setWidth1] = useState(windowWidth * widthPercent < minWidth ? minWidth : windowWidth * widthPercent);
+
+    // useEffect(() => {
+    //     const element = ref.current;
+    //     if (!element) return;
+    //     const observer = new ResizeObserver((entries) => {
+    //         for (const entry of entries) {
+    //             setWidth1(entry.contentRect.width);
+    //         }
+    //     });
+    //     observer.observe(element);
+    //     return () => observer.disconnect();
+    // }, [ref]);
+    // console.log(width1)
+    // const svgWidth = ref.current?.clientWidth * 0.7 < minWidth ? minWidth : ref.current?.clientWidth * 0.7;
+    //
+    // const handlePathMouseMove = (
+    //     event: React.MouseEvent<SVGPathElement>,
+    //     pathData: Data[],
+    //     lineIndex: number
+    // ) => {
+    //     const svgElement = event.currentTarget.ownerSVGElement;
+    //     if (!svgElement) return;
+    //
+    //     const svgRect = svgElement.getBoundingClientRect();
+    //     const mouseX = event.clientX - svgRect.left;
+    //
+    //     let closestPointIndex = -1;
+    //     let minDistance = Infinity;
+    //
+    //     for (let i = 0; i < pathData.length; i++) {
+    //         const dataPoint = pathData[i];
+    //         const svgX = getSvgX(dataPoint.x);
+    //         console.log(svgX)
+    //
+    //         const distanceX = Math.abs(mouseX - svgX);
+    //
+    //         if (distanceX < minDistance) {
+    //             minDistance = distanceX;
+    //             closestPointIndex = i;
+    //         }
+    //     }
+    //     console.log(closestPointIndex)
+    //     console.log(mouseX)
+    //
+    //     if (closestPointIndex !== -1) {
+    //         const closestPoint = pathData[closestPointIndex];
+    //
+    //         setHoverData(closestPoint);
+    //         setHoveredPointCoords({x: getSvgX(closestPoint.x), y: getSvgY(closestPoint.y)});
+    //         setIndex(lineIndex);
+    //     }
+    // };
+    //
+    // const handlePathMouseLeave = () => {
+    //     setHoverData(null);
+    //     setHoveredPointCoords(null);
+    //     setIndex(null);
+    // };
 
 
     function mathAxis() {
@@ -87,12 +173,11 @@ const LineChart: React.FC<LineChartProps> = ({
     }
 
     function showInfo(data: Data) {
-        console.log(data)
         return <div
             style={{
                 position: 'absolute',
                 left: (hoveredPointCoords?.x ?? 0) + 10,
-                top: (hoveredPointCoords?.y ?? 0) + 10,
+                top: (hoveredPointCoords?.y ?? 0) + 20,
                 backgroundColor: '#fff',
                 color: 'black',
                 padding: '8px 12px',
@@ -103,13 +188,15 @@ const LineChart: React.FC<LineChartProps> = ({
 
             }}
         >
-            {labelArray[index]} : {hoverData?.x}, {hoverData?.y}
-
+            <p className="text-md font-bold">{labelArray[index ?? 0]}:</p>
+            <p>- {data?.x} {unitHorizontal}</p>
+            <p>- {data?.y} {unitVertical}</p>
         </div>
+
     }
 
     const [hover, setHover] = useState(false)
-    const [index, setIndex] = useState(0)
+    const [index, setIndex] = useState<number | null>(0)
     const [hoverData, setHoverData] = useState<Data | null>(null)
     const [hoveredPointCoords, setHoveredPointCoords] = useState<Data | null>(null);
 
@@ -124,7 +211,7 @@ const LineChart: React.FC<LineChartProps> = ({
                         stroke={color[index]}
                         strokeWidth={2}
                         style={{transition: 'all 0.2s ease-out'}}
-                        onMouseEnter={() => {
+                        onMouseMove={() => {
                             setHover(true)
                             setHoverData(d)
                             setHoveredPointCoords({x: cx, y: cy});
@@ -152,12 +239,22 @@ const LineChart: React.FC<LineChartProps> = ({
                 <rect x={cx} y={cyMark} width="1" height="8" fill="#000"/>
                 <line x1={getSvgX(d.x)} y1={getSvgY(getMinY())} x2={getSvgX(d.x)} y2={getMinY()}
                       stroke={normalDashColor}
-                      strokeDasharray={dashedArray.join(',')}/>
+                      // strokeDasharray={dashedArray.join(',')}
+                />
 
                 <text x={cx} y={cyValue} textAnchor="middle" fontSize={12}
                       fill="#000">{d.x}</text>
             </g>
         })
+    }
+
+    function renderUnit() {
+        return <g>
+            <text x={width + 10} y={height + 25} textAnchor="start" fontSize={12}
+                  fill="#000">{ unitHorizontal}</text>
+            <text x={20} y={-10} textAnchor="start" fontSize={12}
+                  fill="#000">{unitVertical}</text>
+        </g>
     }
 
     function renderAxisVertical(data: Data[]) {
@@ -170,7 +267,8 @@ const LineChart: React.FC<LineChartProps> = ({
 
 
                 <line x1="0" y1={getSvgY(d.y)} x2={getSvgX(maxX)} y2={getSvgY(d.y)} stroke={normalDashColor}
-                      strokeDasharray={dashedArray.join(',')}/>
+                      // strokeDasharray={dashedArray.join(',')}
+                />
 
 
                 <text
@@ -187,7 +285,7 @@ const LineChart: React.FC<LineChartProps> = ({
     }
 
     return <div className={'relative '}>
-        <svg viewBox={`-20 -30 ${svgWidth} ${svgHeight + 10}`} width={svgWidth} height={svgHeight}
+        <svg viewBox={`-30 -30 ${svgWidth + 50} ${svgHeight + 10}`} width={svgWidth} height={svgHeight}
              className="bg-white p-2">
             <defs>
                 <marker
@@ -202,15 +300,25 @@ const LineChart: React.FC<LineChartProps> = ({
                     <path d="M 0 0 L 6 3 L 0 6 z" fill="black"/>
                 </marker>
             </defs>
-
+            {renderUnit()}
+            {mathAxis()}
             {
                 data.map((d, i) => {
-                    return <>
-                        <path d={mathPath(d)} className={`fill-none  stroke-2 `}
+                    return <g>
+                        <path d={mathPath(d)} className={`fill-none  stroke-2`}
                               stroke={color[i]}/>
+                        {/*<path*/}
+                        {/*    d={mathPath(d)}*/}
+                        {/*    fill="none"*/}
+                        {/*    stroke="transparent"*/}
+                        {/*    strokeWidth={10}*/}
+                        {/*    onMouseMove={(e) => handlePathMouseMove(e, d, i)}*/}
+                        {/*    onMouseLeave={handlePathMouseLeave}*/}
+                        {/*    style={{cursor: 'pointer'}}*/}
+                        {/*/>*/}
 
-                        {mathAxis()} {renderAxisHorizontal(d)} {renderAxisVertical(d)} {renderMarker(d, i)}
-                    </>
+                        {renderAxisHorizontal(d)} {renderAxisVertical(d)} {renderMarker(d, i)}
+                    </g >
                 })
             }
 
@@ -244,14 +352,15 @@ const LineChart: React.FC<LineChartProps> = ({
 
             {
                 labelArray.map((label, i) => {
-                    return <div key={`label-${i}`} className={'flex justify-end items-center  flex flex-row gap-4 '}>
-                        <p className={'text-[12px] font-normal'}>{label}</p>
+                    return <div key={`label-${i}`} className={'justify-start items-center  flex flex-row gap-4 '}>
+
                         <svg viewBox={`0 0 30 20`} width={50} height={30}>
 
                             <path d="M 0 10 L 30 10" stroke={color[i]} strokeWidth={2}/>
                             <circle cx={15} cy={10} r={3} fill={'#fff'}
                                     stroke={color[i]} strokeWidth={1}/>
                         </svg>
+                        <p className={' font-normal'}>{label}</p>
                     </div>
 
                 })
@@ -260,4 +369,4 @@ const LineChart: React.FC<LineChartProps> = ({
     </div>;
 };
 
-export default LineChart;
+export default MultiLineChart;
