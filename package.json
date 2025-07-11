@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@babel/runtime": "^7.27.6",
     "@tailwindcss/postcss": "^4.1.11",
+    "@uiw/react-split": "^5.9.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

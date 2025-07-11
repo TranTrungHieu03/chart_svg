@@ -8,12 +8,14 @@ const LineChartCustom = ({
                              downX,
                              peakX,
                              durationPeak,
+                             drag
                          }: {
 
     velocity: number,
     downX: number,
     peakX: number,
-    durationPeak: number
+    durationPeak: number,
+    drag: boolean
 }) => {
 
 
@@ -96,6 +98,13 @@ const LineChartCustom = ({
         return () => window.removeEventListener("resize", update)
     }, [])
 
+    useEffect(() => {
+        if (containerRef.current) {
+            setContainerWidth(containerRef.current.offsetWidth - 20)
+            setContainerHeight((containerRef.current.offsetWidth - 20) * 3 / 2)
+        }
+    }, [drag])
+
     const dataX = () => Array.from({length: lengthX + 1}, (_, i) => i * stepX)
 
     const dataY = () => Array.from({length: lengthY + 1}, (_, i) => i * stepY)
@@ -152,7 +161,6 @@ const LineChartCustom = ({
 
     function renderAxisVertical() {
         return dataX().map((d, i) => {
-
             return <div key={`key-horizontal-${d}`}
                         className={`w-[0.5px]    bg-gray-600 absolute bottom-0`} style={{
                 left: (i) * 0.1 + 1 / lengthX * containerWidth * (i),
@@ -163,10 +171,11 @@ const LineChartCustom = ({
     }
 
     return <div
-        className={' flex-grow flex items-center justify-center  2xl:pl-20 md:pl-14   sm:pl-14 my-auto  pr-2  pb-20'}>
+        className={'flex-grow flex items-center justify-center 2xl:pl-20 md:pl-14 sm:pl-14 my-auto pr-2 pb-20 '}>
         <div
-            className={`w-full items-center self-center relative`} style={{height: containerHeight}}
-            ref={containerRef}>
+            className={`w-full items-center self-center relative max-w-lg`} style={{height: containerHeight}}
+            ref={containerRef}
+        >
             <div
                 className={'absolute -left-20 -rotate-90 -translate-y-1/2  top-1/2   xl:text-[14px] lg:text-[13px] md:text-[12px]'}>Velocity
             </div>
@@ -176,7 +185,7 @@ const LineChartCustom = ({
             <div className={'w-[0.5px] bg-black absolute bottom-0 left-0'} style={{
                 height: containerHeight + 15,
             }}/>
-            <div className={'  h-[0.5px] bg-black absolute bottom-0 left-0'} style={{
+            <div className={'h-[0.5px] bg-black absolute bottom-0 left-0'} style={{
                 width: containerWidth + 15,
             }}/>
 
