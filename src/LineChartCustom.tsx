@@ -8,14 +8,12 @@ const LineChartCustom = ({
                              downX,
                              peakX,
                              durationPeak,
-                             drag
                          }: {
 
     velocity: number,
     downX: number,
     peakX: number,
     durationPeak: number,
-    drag: boolean
 }) => {
 
 
