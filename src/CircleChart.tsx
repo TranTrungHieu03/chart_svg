@@ -1,27 +1,30 @@
-
-// <CircleChart data={[40, 30, 17]} listSec={[0.123, -0.345, 0.986]} radius={3}/>
 const CircleChart = ({
                          data,
                          listSec,
-                         radius
+                         radius,
+                         totalAngle
                      }: {
     data: number[],
     listSec: number[],
-    radius: number
+    radius?: number,
+    totalAngle: number
 }) => {
+
     const listColor = ['#58A0C8', '#FFC107', '#EB5A3C']
     let cumulatedAngle = 0;
+    const totalCurrentAngle = data.reduce((a, b) => a + b, 0);
+    const refixData = data.map(d => d  * totalAngle/ totalCurrentAngle);
 
     return (
         <div className={'flex flex-col justify-center  items-center text-black'}>
             <div
                 className={'h-[400px] w-[400px] bg-blue-50 rounded-full border-b-[#D3AF37] border-b-[18px] relative'}
                 style={{
-                    backgroundImage: `conic-gradient(${listColor[0]} 0deg , ${listColor[0]} ${data[0]}deg ,  ${listColor[1]} ${data[0]}deg,
-                     ${listColor[1]}  ${data[0] + data[1]}deg, ${listColor[2]} ${data[0] + data[1]}deg, 
-                     ${listColor[2]}  ${data[0] + data[1] + data[2]}deg,#DBDBDB ${data[0] + data[1] + data[2]}deg , #DBDBDB  360deg)`
+                    backgroundImage: `conic-gradient(${listColor[0]} 0deg , ${listColor[0]} ${refixData[0]}deg ,  ${listColor[1]} ${refixData[0]}deg,
+                     ${listColor[1]}  ${refixData[0] + refixData[1]}deg, ${listColor[2]} ${refixData[0] + refixData[1]}deg, 
+                     ${listColor[2]}  ${refixData[0] + refixData[1] + refixData[2]}deg,#DBDBDB ${refixData[0] + refixData[1] + refixData[2]}deg , #DBDBDB  360deg)`
                 }}>
-                {data.map((d, i) => {
+                {refixData.map((d, i) => {
                     const middleAngle = cumulatedAngle + d / 2
                     const x = (Math.cos((middleAngle - 90) * Math.PI / 180) * 50) * 0.5 + 50
                     const y = (Math.sin((middleAngle - 90) * Math.PI / 180) * 50) * 0.5 + 50
@@ -31,7 +34,7 @@ const CircleChart = ({
                                     left: `${x}%`,
                                     top: `${y}%`,
                                 }}>
-                        {d}°
+                        {data[i]}°
                     </div>
                 })}
 
@@ -54,7 +57,7 @@ const CircleChart = ({
                         </div>
                     })
                 }
-                <p className={'flex self-center pt-2'}>반지름 {radius}mm </p>
+                {radius && <p className={'flex self-center pt-2'}>반지름 {radius}mm </p>}
             </div>
         </div>
     )

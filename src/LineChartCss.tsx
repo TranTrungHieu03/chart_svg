@@ -1,28 +1,45 @@
 const LineChartCustom = ({
-                             velocity,
-                             downX,
-                             peakX,
-                             durationPeak,
+                             timeValue,
+                             velocityValue,
                          }: {
-
-    velocity: number,
-    downX: number,
-    peakX: number,
-    durationPeak: number,
+    timeValue?: Array<number | null>,
+    velocityValue?: Array<number | null>,
 }) => {
+    const isEnoughTime = timeValue?.length == 3
+    const isEnoughVelocity = velocityValue?.length == 3
+    const isEnoughData = isEnoughTime && isEnoughVelocity
+    const hasNullValue = timeValue?.some(d => d == null) || velocityValue?.some(d => d == null)
+    const isValidData = isEnoughData && !hasNullValue
 
-    const isEnoughData = velocity > 0 && downX > 0 && peakX > 0 && durationPeak > 0
-    if (!isEnoughData) {
-        velocity = 1
-        downX = 0.5
-        peakX = 0.5
-        durationPeak = 1
+    let velocityMax = 1
+    let downX: number | null = 0.5
+    let peakX: number | null = 0.5
+    let durationPeak: number | null = 1
+    let velocityFirst: number | null = 1
+    let velocityAtPeak: number | null = 1
+    let velocityDown: number | null = 1
+
+    if (isValidData) {
+        velocityMax = Math.max(...velocityValue.filter((v): v is number => v !== null))
+        downX = timeValue[2]
+        peakX = timeValue[0]
+        durationPeak = timeValue[1]
+        velocityFirst = velocityValue[0]
+        velocityAtPeak = velocityValue[1]
+        velocityDown = velocityValue[2]
     }
+    downX = downX ?? 0.5
+    peakX = peakX ?? 0.5
+    durationPeak = durationPeak ?? 1
+    velocityFirst = velocityFirst ?? 1
+    velocityAtPeak = velocityAtPeak ?? 1
+    velocityDown = velocityDown ?? 0
+    velocityMax = velocityMax ?? 1
 
     function countDecimal(number: number) {
-        if (!Number.isFinite(number)) return 0;
-        const decimalPart = number.toString().split('.')[1];
-        return decimalPart ? decimalPart.length : 0;
+        if (!Number.isFinite(number)) return 0
+        const decimalPart = number.toString().split('.')[1]
+        return decimalPart ? decimalPart.length : 0
     }
 
     let fixedNumberY = 0
@@ -32,25 +49,25 @@ const LineChartCustom = ({
     let stepX = peakX
     let stepY
 
-    if (velocity <= 1) {
-        stepY = Number((velocity / 5).toFixed(2))
+    if (velocityMax <= 1) {
+        stepY = Number((velocityMax / 5).toFixed(2))
         fixedNumberY = 2
     } else if (
-        velocity <= 10 &&
-        velocity > 1
+        velocityMax <= 10 &&
+        velocityMax > 1
     ) {
-        stepY = Number((velocity / 5).toFixed(1))
+        stepY = Number((velocityMax / 5).toFixed(1))
         fixedNumberY = 1
 
     } else if (
-        velocity < 300 &&
-        velocity > 10
+        velocityMax < 300 &&
+        velocityMax > 10
     ) {
-        stepY = Number((velocity / 5).toFixed(0))
+        stepY = Number((velocityMax / 5).toFixed(0))
         fixedNumberY = 0
 
     } else {
-        stepY = Number((Number((velocity / 6).toFixed(0)) / 50).toFixed(0)) * 50
+        stepY = Number((Number((velocityMax / 6).toFixed(0)) / 50).toFixed(0)) * 50
         fixedNumberY = 0
     }
 
@@ -62,13 +79,13 @@ const LineChartCustom = ({
         lengthX = 10
         stepX = totalTime / lengthX
     }
-    const lengthY = (velocity / stepY) + 1
+    const lengthY = (velocityMax / stepY) + 1
 
     const points = [
         {x: 0, y: 0},
-        {x: peakX, y: velocity},
-        {x: durationPeak + peakX, y: velocity},
-        {x: durationPeak + peakX + downX, y: 0},
+        {x: peakX, y: velocityFirst},
+        {x: durationPeak + peakX, y: velocityAtPeak},
+        {x: durationPeak + peakX + downX, y: velocityDown},
     ]
 
     const maxX = stepX * lengthX
@@ -174,19 +191,19 @@ const LineChartCustom = ({
 
                 </div>
             })}
-                {
-                    dataY().map((d) => {
+            {
+                dataY().map((d) => {
 
-                        return <div key={`key-horizontal-${d}`}
-                                    className={`absolute -left-10 translate-y-2  2xl:text-[14px]  xl:text-[13px] lg:text-[12px] md:text-[11px]`}
-                                    style={{
-                                        bottom: `${getPercentY(d)}%`,
-                                    }}>
-                            {d.toFixed(fixedNumberY)}
+                    return <div key={`key-horizontal-${d}`}
+                                className={`absolute -left-10 translate-y-2  2xl:text-[14px]  xl:text-[13px] lg:text-[12px] md:text-[11px]`}
+                                style={{
+                                    bottom: `${getPercentY(d)}%`,
+                                }}>
+                        {d.toFixed(fixedNumberY)}
 
-                        </div>
-                    })
-                }
+                    </div>
+                })
+            }
 
         </>
     }
@@ -216,13 +233,13 @@ const LineChartCustom = ({
             }
 
             {
-                isEnoughData && renderPath()
+                isValidData && renderPath()
 
             }
             {
-                isEnoughData && renderMarker()
+                isValidData && renderMarker()
             }
-            {isEnoughData &&
+            {isValidData &&
                 renderAxisValue()
             }
 
