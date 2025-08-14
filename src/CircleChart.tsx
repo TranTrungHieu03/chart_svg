@@ -9,11 +9,12 @@ const CircleChart = ({
     radius?: number,
     totalAngle: number
 }) => {
+    totalAngle = totalAngle > 360 || totalAngle < 0 ? 360 : totalAngle
 
     const listColor = ['#58A0C8', '#FFC107', '#EB5A3C']
     let cumulatedAngle = 0;
     const totalCurrentAngle = data.reduce((a, b) => a + b, 0);
-    const refixData = data.map(d => d  * totalAngle/ totalCurrentAngle);
+    const refixData = data.map(d => d * totalAngle / totalCurrentAngle);
 
     return (
         <div className={'flex flex-col justify-center  items-center text-black'}>

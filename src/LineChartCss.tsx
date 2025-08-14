@@ -5,6 +5,7 @@ const LineChartCustom = ({
     timeValue?: Array<number | null>,
     velocityValue?: Array<number | null>,
 }) => {
+    // const timeParseDouble =
     const isEnoughTime = timeValue?.length == 3
     const isEnoughVelocity = velocityValue?.length == 3
     const isEnoughData = isEnoughTime && isEnoughVelocity
@@ -113,7 +114,6 @@ const LineChartCustom = ({
                     {d.y}
                 </div>
             </div>
-
 
         })
     }
