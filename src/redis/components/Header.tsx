@@ -8,7 +8,6 @@ const Header = () => {
     const toggleMenu = () => {
         setShowMenu(!showMenu)
     }
-    console.log(showMenu)
     return <header
         className={'sticky z-50 top-0 flex items-center lg:pl-11     px-4 lg:px-0 font-mono h-[70px] text-[17px]  bg-white border-b border-gray-400'}>
 

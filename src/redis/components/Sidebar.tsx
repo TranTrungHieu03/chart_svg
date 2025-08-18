@@ -1,38 +1,38 @@
-import {useEffect, useState} from "react";
+import {useState} from "react";
 
 const Sidebar = () => {
     const [indexShow, setIndexShow] = useState(0);
     const [indexShow2, setIndexShow2] = useState(0);
     const [indexShow3, setIndexShow3] = useState(0);
-    const [sidebarHeight, setSidebarHeight] = useState(500)
-
+    const sidebar = document.getElementById('sidebar');
+    const footer = document.querySelector('footer');
 
     function adjustHeight() {
-        const footer = document.querySelector('footer');
-
-        // if (!footer) {
-        //     setSidebarHeight(window.innerHeight - 110);
-        //     return;
-        // }
-
+        if (!sidebar) return null;
+        if (!footer) {
+            sidebar.style.height = `${window.innerHeight - 110}px`;
+            return;
+        }
         const viewportHeight = window.innerHeight;
         const scrollY = window.scrollY;
-        const footerTop = footer?.offsetTop;
-        console.log(footerTop)
-        const height = viewportHeight - (footerTop ?? 0) - scrollY - 110
-        setSidebarHeight(height);
+        const footerTop = footer.offsetTop;
+
+        if (viewportHeight + scrollY >= footerTop) {
+            const height = footerTop - scrollY - 110;
+            sidebar.style.height = `${height}px`;
+        } else {
+            sidebar.style.height = `${window.innerHeight - 110}px`;
+        }
     }
 
-    console.log(sidebarHeight)
-    useEffect(() => {
-        window.addEventListener('scroll', adjustHeight)
-        adjustHeight()
-        return () => {
-            window.removeEventListener('scroll', adjustHeight);
-        }
-    }, [])
-    return <div className={' pb-5 flex flex-col gap-4 font-mono  min-h-[400px]'} style={{
-        height: `${sidebarHeight}px`,
+    adjustHeight();
+
+    window.addEventListener('scroll', adjustHeight);
+
+    return <div
+        className={'top-[110px] fixed w-96 pb-5 flex flex-col gap-4 font-mono h-full min-h-[400px] max-h[calc(100vh-110px)]'}
+        id={'sidebar'} style={{
+        // height: `${sidebarHeight}px`,
     }}>
         <div className={'min-h-[200px] border rounded-md border-gray-500 *:text-lg  flex flex-col '}>
             <div
@@ -40,8 +40,8 @@ const Sidebar = () => {
                 onClick={() => setIndexShow(1)}
             >Develop with Redis
             </div>
-            {(indexShow === 1) && < div id={'sidebar'}
-                                        className={'h-fit overflow-y-auto pb-5 border-b border-b-gray-500 snap-start duration-100'}
+            {(indexShow === 1) && < div
+                className={'h-fit overflow-y-auto pb-5 border-b border-b-gray-500 snap-start duration-100'}
             >
                 <div className={' mx-5 mt-4'}>
                     <p className={' cursor-pointer  hover:text-gray-600 duration-100'}
@@ -103,7 +103,7 @@ const Sidebar = () => {
             </div>}
 
             <div
-                className={'hover:bg-gray-200  duration-100  border-b  cursor-pointer border-b-gray-500 p-5  ' }
+                className={'hover:bg-gray-200  duration-100  border-b  cursor-pointer border-b-gray-500 p-5  '}
                 onClick={() => setIndexShow(2)}>Libraries
                 and
                 tools
